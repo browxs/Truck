@@ -6,6 +6,10 @@ namespace Truck.Domain.Repositories
 {
     public interface IVeiculoRepository : IRepository<Veiculo>
     {
-        Task<IEnumerable<Veiculo>> GetByMarca(string marca);
+        Task<IEnumerable<Veiculo>> GetByModelo(string modelo);
+
+        Task<IEnumerable<Veiculo>> GetAllWithCategoriaAsync();
+
+        Task<Veiculo> GetByIdWithCategoriaAsync(int id);
     }
 }

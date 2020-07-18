@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Truck.Domain.Entities
+﻿namespace Truck.Domain.Entities
 {
     public class Veiculo
     {
@@ -12,5 +6,15 @@ namespace Truck.Domain.Entities
         public string Marca { get; set; }
         public string Modelo { get; set; }
         public decimal Preco { get; set; }
+        public int CategoriaId { get; set; }
+        public Categoria Categoria { get; set; }
+
+        public void Update(string marca, string modelo, decimal preco, int categoriaId)
+        {
+            Marca = marca;
+            Modelo = modelo;
+            Preco = preco;
+            CategoriaId = categoriaId;
+        }
     }
 }

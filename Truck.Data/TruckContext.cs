@@ -21,6 +21,7 @@ namespace Truck.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new Maps.VeiculoMap());
+            modelBuilder.ApplyConfiguration(new Maps.CategoriaMap());
 
             modelBuilder.Seed();
         }

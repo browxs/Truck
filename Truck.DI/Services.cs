@@ -10,7 +10,9 @@ namespace Truck.DI
         public static void AddDependencies(this IServiceCollection services)
         {
             services.AddScoped<TruckContext>();
+
             services.AddTransient<IVeiculoRepository, VeiculoRepository>();
+            services.AddTransient<ICategoriaRepository, CategoriaRepository>();
         }
     }
 }
