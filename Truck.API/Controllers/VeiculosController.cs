@@ -1,118 +1,189 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Truck.API.Models;
+using Truck.API.DTOs;
+using Truck.Domain.Entities;
 using Truck.Domain.Repositories;
 
 namespace Truck.API.Controllers
 {
-    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class VeiculosController : ControllerBase
     {
         private readonly IVeiculoRepository _veiculoRepository;
-        private readonly ICategoriaRepository _categoriaRepository;
+        private readonly IMapper _mapper;
 
-        public VeiculosController(IVeiculoRepository veiculoRepository, ICategoriaRepository categoriaRepository)
+        public VeiculosController(IVeiculoRepository veiculoRepository, IMapper mapper)
         {
             _veiculoRepository = veiculoRepository;
-            _categoriaRepository = categoriaRepository;
+            _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retorna todos os veiculos
+        /// </summary>
+        /// <remarks>
+        /// Retorna uma lista de todos os veiculos
+        /// </remarks>
+        /// <returns></returns>
+        /// <response code="200">Veiculos encontrados</response>
+        /// <response code="400">Veiculos não encontrados</response>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var data = (await _veiculoRepository.GetAllWithCategoriaAsync())
-                .Select(p => p.ToVeiculoGet());
-            return Ok(data);
-        }
+            var veiculos = await _veiculoRepository.GetAllWithCategoriaAsync();
 
-        [HttpGet("{id}", Name = "GetVeiculoById")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var data = await _veiculoRepository.GetByIdWithCategoriaAsync(id);
+            if (veiculos == null)
+            {
+                return NotFound("Veiculos não encontradas");
+            }
 
-            if (data == null) return NotFound();
+            var veiculosDto = _mapper.Map<List<VeiculoCategoriaDTO>>(veiculos);
 
-            return Ok(data?.ToVeiculoGet());
+            return Ok(veiculosDto);
         }
 
         /// <summary>
-        /// Creates a TodoItem.
+        /// Retorna veiculo pelo id
         /// </summary>
         /// <remarks>
-        /// Sample request:
-        ///
-        ///     POST /Todo
-        ///     {
-        ///        "id": 1,
-        ///        "name": "Item1",
-        ///        "isComplete": true
-        ///     }
-        ///
+        /// Retorna veiculo pelo id
         /// </remarks>
-        /// <param name="model"></param>
-        /// <returns>A newly created TodoItem</returns>
-        /// <response code="201">Returns the newly created item</response>
-        /// <response code="400">If the item is null</response>   
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Add([FromBody] VeiculoAddEdit model)
+        /// <param name="id">Id do veiculo</param>
+        /// <returns></returns>
+        /// <response code="200">Veiculo encontrada</response>
+        /// <response code="404">Veiculo não encontrada</response>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            var categoria = await _categoriaRepository.GetByIdAsync(model.CategoriaId);
+            var veiculo = await _veiculoRepository.GetByIdWithCategoriaAsync(id);
 
-            if (categoria == null)
-                ModelState.AddModelError("CategoriaId", "Categoria inválida");
+            if (veiculo == null)
+            {
+                return NotFound("Veiculo não encontrada");
+            }
 
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var veiculoDto = _mapper.Map<VeiculoCategoriaDTO>(veiculo);
 
-            var data = model.ToVeiculo();
-            _veiculoRepository.Add(data);
-
-            var veiculo = data.ToVeiculoGet();
-            veiculo.CategoriaNome = categoria.Nome;
-
-            return CreatedAtRoute("GetVeiculoById", new { veiculo.Id }, veiculo);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] VeiculoAddEdit model)
-        {
-            var categoria = await _categoriaRepository.GetByIdAsync(model.CategoriaId);
-
-            if (categoria == null)
-                ModelState.AddModelError("CategoriaId", "Categoria inválida");
-
-            var veiculo = await _veiculoRepository.GetByIdAsync(id);
-
-            if (veiculo == null) ModelState.AddModelError("Id", "veiculo não localizado");
-
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            veiculo.Update(model.Marca, model.Modelo, model.Preco, model.CategoriaId );
-            _veiculoRepository.Update(veiculo);
-
-            return Ok();
+            return Ok(veiculoDto);
         }
 
         /// <summary>
-        /// Deletes a specific TodoItem.
+        /// Retorna todos os veículos filtrados por marca
         /// </summary>
-        /// <param name="id"></param>    
+        /// <remarks>
+        /// Retorna uma lista de todos os veículos filtrados por marca
+        /// </remarks>
+        /// <param name="marca">Marcas dos veículos</param>
+        /// <returns></returns>
+        /// <response code="200">Marca encontrada</response>
+        /// <response code="404">Marca não encontrada</response>
+        [HttpGet("marca/{marca}")]
+        public async Task<IActionResult> GetByMarca(string marca)
+        {
+            var veiculo = await _veiculoRepository.GetByMarcaAsync(marca);
+
+            if (veiculo == null)
+            {
+                return NotFound("Veiculo não encontrada");
+            }
+
+            var veiculoDto = _mapper.Map<List<VeiculoRespostaDTO>>(veiculo);
+
+            return Ok(veiculoDto);
+        }
+
+        /// <summary>
+        /// Adiciona um novo veiculo
+        /// </summary>
+        /// <remarks>
+        /// Adiciona um novo veiculo
+        /// </remarks>
+        /// <param name="veiculoDto">Veiculo para adicionar</param>
+        /// <returns></returns>
+        /// <response code="200">Veiculo adicionado</response>
+        /// <response code="400">Falha ao adicionar veiculo</response>
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] VeiculoDTO veiculoDto)
+        {
+            var veiculo = _mapper.Map<Veiculo>(veiculoDto);
+
+            _veiculoRepository.Add(veiculo);
+
+            if (await _veiculoRepository.CommitAsync())
+            {
+                var data = _mapper.Map<VeiculoRespostaDTO>(veiculo);
+                return Ok(data);
+            }
+            else
+            {
+                return BadRequest("Falha ao adicionar veiculo");
+            }
+        }
+
+        /// <summary>
+        /// Atualiza um veiculo existente
+        /// </summary>
+        /// <param name="id">Id do veiculo</param>
+        /// <param name="veiculoDto">Veiculo para atualizar</param>
+        /// <returns></returns>
+        /// <response code="200">Veiculo atualizado</response>
+        /// <response code="400">Falha ao atualizar veiculo</response>
+        /// <response code="404">Veiculo não localizado</response>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] VeiculoRespostaDTO veiculoDto)
+        {
+            if (id != veiculoDto.Id)
+            {
+                return NotFound("Veiculo não encontrada");
+            }
+
+            var data = _mapper.Map<Veiculo>(veiculoDto);
+            _veiculoRepository.Update(data);
+
+            if (await _veiculoRepository.CommitAsync())
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Falha ao atualizar veiculo");
+            }
+        }
+
+        /// <summary>
+        /// Exclui um veiculo
+        /// </summary>
+        /// <remarks>
+        /// Exclui um veiculo
+        /// </remarks>
+        /// <param name="id">Id do veiculo para excluir</param>
+        /// <returns></returns>   
+        /// <response code="200">Veiculo excluído</response>
+        /// <response code="400">Falha ao excluir veiculo</response>
+        /// <response code="404">Veiculo não encontrado</response>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var data = await _veiculoRepository.GetByIdAsync(id);
 
             if (data == null)
-                return BadRequest(new { Veiculo = new string[] { "veiculo não localizado" } });
+            {
+                return NotFound("Veiculo não encontrada");
+            }
 
             _veiculoRepository.Delete(data);
 
-            return Ok();
+            if (await _veiculoRepository.CommitAsync())
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Falha ao excluir veiculo");
+            }
         }
     }
 }

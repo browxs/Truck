@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
 using System.Reflection;
+using Truck.API.DTOs.Maps;
 using Truck.Data;
 using Truck.Data.Repositories;
 using Truck.Domain.Repositories;
@@ -26,6 +28,10 @@ namespace Truck.API
         {
             services.AddDbContext<TruckContext>();
 
+            var mappingConfig = new MapperConfiguration(mc => mc.AddProfile(new MappingProfile()));
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddTransient<IVeiculoRepository, VeiculoRepository>();
             services.AddTransient<ICategoriaRepository, CategoriaRepository>();
 
@@ -36,30 +42,19 @@ namespace Truck.API
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "ToDo API",
-                    Description = "A simple example ASP.NET Core Web API",
-                    TermsOfService = new Uri("https://example.com/terms"),
+                    Title = "Truck API",
+                    Description = "API para cadastro de veículos",
                     Contact = new OpenApiContact
                     {
-                        Name = "Shayne Boyer",
-                        Email = string.Empty,
-                        Url = new Uri("https://twitter.com/spboyer"),
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "Use under LICX",
-                        Url = new Uri("https://example.com/license"),
-                    }
+                        Name = "Bruno Sousa",
+                        Email = "brunocsousa7@gmail.com",
+                        Url = new Uri("https://github.com/browxs/Truck"),
+                    }                    
                 });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });            
-
-            //services.AddControllers().AddNewtonsoftJson(options =>
-            //{
-            //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            //});
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

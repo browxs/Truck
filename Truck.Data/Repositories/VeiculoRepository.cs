@@ -14,23 +14,26 @@ namespace Truck.Data.Repositories
 
         public async Task<IEnumerable<Veiculo>> GetAllWithCategoriaAsync()
         {
-            return await
-                        _set
-                            .Include(p => p.Categoria)
-                        .ToListAsync();
+            return await Get()
+                .Include(v => v.Categoria)
+                .ToListAsync();
         }
 
         public async Task<Veiculo> GetByIdWithCategoriaAsync(int id)
         {
-            return await
-                        _set
-                            .Include(p => p.Categoria)
-                        .FirstOrDefaultAsync(p => p.Id == id);
+            return await Get()
+                .Include(v => v.Categoria)
+                .FirstOrDefaultAsync(v => v.Id == id);
         }
 
-        public async Task<IEnumerable<Veiculo>> GetByModelo(string modelo)
+        public async Task<IEnumerable<Veiculo>> GetByMarcaAsync(string marca)
         {
-            return await _set.Where(p => p.Modelo.Contains(modelo)).ToListAsync();
+            return await Get()
+                .Include(v => v.Categoria)
+                .Where(v => v.Marca.ToLower()
+                .Contains(marca.ToLower()))
+                .OrderBy(v => v.Modelo)
+                .ToListAsync();
         }
     }
 }

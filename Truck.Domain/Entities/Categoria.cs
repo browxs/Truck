@@ -7,10 +7,5 @@ namespace Truck.Domain.Entities
         public int Id { get; set; }
         public string Nome { get; set; }
         public ICollection<Veiculo> Veiculos { get; set; }
-
-        public void Update(string nome)
-        {
-            Nome = nome;
-        }
     }
 }

@@ -13,6 +13,7 @@ namespace Truck.Data.Maps
             builder.Property(p => p.Marca).HasColumnType("varchar(100)").IsRequired();
             builder.Property(p => p.Modelo).HasColumnType("varchar(200)").IsRequired();
             builder.Property(p => p.Preco).HasColumnType("money");
+            builder.Property(p => p.CategoriaId).IsRequired();
         }
     }
 }
