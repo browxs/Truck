@@ -9,7 +9,7 @@ Truck é um serviço de API REST em JSON para cadastrar categorias e veículos.
 
 ## Informações
 Solução feita em 3 camadas (API, Data e Domain).
-Utilizando repositórios, interfaces e DTOs.
+Utilizando repositórios, interfaces e DTOs. Com banco de dados SQL Server e publicação no Microsoft Azure Cloud.
 
 ## Setup
 1. Instalar os seguintes programas:
