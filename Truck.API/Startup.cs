@@ -70,6 +70,10 @@ namespace Truck.API
 
             app.UseAuthorization();
 
+            app.UseCors(opt => opt.AllowAnyOrigin()
+                                  .AllowAnyHeader()
+                                  .AllowAnyMethod());
+
             app.UseSwagger(c =>
             {
                 c.SerializeAsV2 = true;
