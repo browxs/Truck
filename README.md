@@ -1,5 +1,5 @@
 # Truck API (.NET Core 3.0)
-Truck é um serviço de API para cadastrar categorias e veículos.
+Truck é um serviço de API REST em JSON para cadastrar categorias e veículos.
 
 ## Ferramentas
    * [ASP.NET Core 3.0](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-3.0 "ASP.NET Core 3.0")
